@@ -1,9 +1,11 @@
 import { AlbumListProps } from './interfaceAlbumList';
 
 export interface Track {
-  album: string,
+  album: string;
   title: string;
-  src: any;
+  src: string; // Now will be either local file or URL from backend
+  artist: string;
+  key?: string; // S3 key for backend tracks
 }
 
 export interface DisplayTrackProps {
