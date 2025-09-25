@@ -13,4 +13,6 @@ export interface DisplayTrackProps {
   progressBarRef: React.MutableRefObject<any>;
   handleNext?: () => void;
   albums: Record<string, AlbumListProps>; // Ahora utiliza la interfaz Album directamente
+  currentAlbum?: AlbumListProps | null;
+  onTrackSelect?: (track: Track, trackIndex: number) => void;
 }

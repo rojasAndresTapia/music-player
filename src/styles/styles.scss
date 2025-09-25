@@ -1,0 +1,19 @@
+// =========================
+// Main Styles Entry Point
+// =========================
+
+// Import design system variables first
+@import 'variables';
+
+// Import global styles and resets
+@import 'globals';
+
+// Import component-specific styles
+@import 'audioplayer';
+@import 'progressbar';
+@import 'tracklist';
+@import 'search';
+
+// Note: This single file now contains all the styles for the application
+// Import this file once in your main page component instead of importing
+// individual SCSS modules in each component.

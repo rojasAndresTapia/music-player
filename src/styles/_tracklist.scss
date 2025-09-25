@@ -1,0 +1,170 @@
+// =========================
+// TrackList Component Styles
+// =========================
+
+@import 'variables';
+
+.trackList {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.trackList__container {
+  background: $player-card-bg;
+  border-radius: $border-radius-lg;
+  padding: $spacing-2xl;
+  height: fit-content;
+  max-height: 25rem; // 400px
+  overflow-y: auto;
+  border: 0.0625rem solid $border-light;
+  flex: 1;
+}
+
+.trackList__title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  margin: 0 0 $spacing-xl 0;
+  padding-bottom: $spacing-md;
+  border-bottom: 0.0625rem solid $border-light;
+}
+
+.trackList__tracks {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.trackList__track {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: $spacing-md $spacing-lg;
+  border-radius: $border-radius-md;
+  cursor: pointer;
+  transition: all $transition-fast;
+  border: 0.0625rem solid transparent;
+  
+  &:hover {
+    background: $neutral-100;
+    border-color: $border-light;
+    
+    .trackList__playIcon {
+      opacity: 1;
+    }
+  }
+  
+  &--active {
+    background: rgba($player-accent, 0.1);
+    border-color: rgba($player-accent, 0.3);
+    
+    .trackList__trackNumber {
+      background: $player-accent;
+      color: $text-inverse;
+    }
+    
+    .trackList__trackTitle {
+      color: $player-accent;
+      font-weight: $font-weight-semibold;
+    }
+    
+    .trackList__playIcon {
+      color: $player-accent;
+      opacity: 1;
+    }
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.trackList__trackNumber {
+  width: 2rem; // 32px
+  height: 2rem; // 32px
+  border-radius: $border-radius-full;
+  background: $neutral-200;
+  color: $text-secondary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  flex-shrink: 0;
+  transition: all $transition-fast;
+}
+
+.trackList__trackInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-xs;
+  }
+}
+
+.trackList__trackTitle {
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  transition: all $transition-fast;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 12rem; // 192px
+  
+  @media (max-width: $breakpoint-sm) {
+    max-width: none;
+  }
+}
+
+.trackList__trackDuration {
+  font-size: $font-size-sm;
+  color: $text-tertiary;
+  font-weight: $font-weight-medium;
+  flex-shrink: 0;
+  min-width: 3rem; // 48px
+  text-align: right;
+  
+  @media (max-width: $breakpoint-sm) {
+    text-align: left;
+  }
+}
+
+.trackList__playIcon {
+  color: $text-tertiary;
+  font-size: $font-size-base;
+  flex-shrink: 0;
+  transition: all $transition-fast;
+  opacity: 0;
+  
+  .trackList__track--active & {
+    opacity: 1;
+  }
+}
+
+// Custom scrollbar for track list
+.trackList__container {
+  &::-webkit-scrollbar {
+    width: 0.375rem; // 6px
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $neutral-300;
+    border-radius: $border-radius-md;
+    
+    &:hover {
+      background: $neutral-400;
+    }
+  }
+}

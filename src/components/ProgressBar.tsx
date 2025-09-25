@@ -1,5 +1,4 @@
 import { ProgressBarProps } from '@/utils/interfaceProgressBar';
-import styles from "../styles/ProgressBar.module.scss"
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({ progressBarRef, audioRef, timeProgress, duration }) => {
 
@@ -23,15 +22,18 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({ progressBarRef, audioR
 
 
     return (
-      <section className={styles.progress}>
-        <span className={styles.time}>{formatTime(timeProgress)}</span>
-        <input 
-        type="range" 
-        ref={progressBarRef} 
-        className={styles.inputRange}
-        defaultValue="0"
-        onChange={handleProgressChange}/>
-        <span className={styles.time}>{formatTime(duration)}</span>
+      <section className="progressSection">
+        <div className="progressContainer">
+          <span className="timeDisplay current">{formatTime(timeProgress)}</span>
+          <input 
+            type="range" 
+            ref={progressBarRef} 
+            className="inputRange"
+            defaultValue="0"
+            onChange={handleProgressChange}
+          />
+          <span className="timeDisplay">{formatTime(duration)}</span>
+        </div>
       </section>
     );
   };

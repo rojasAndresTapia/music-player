@@ -11,8 +11,9 @@ export interface ControlsProps {
   tracks: Track[];
   trackIndex: number;
   setTrackIndex: React.Dispatch<React.SetStateAction<number>>;
-  setCurrentTrack: React.Dispatch<React.SetStateAction<Track>>;
+  setCurrentTrack: (track: Track) => void;
   handleNext: () => void;
+  handlePrevious?: () => void;
   albums: {
     author: string;
     thumbnail?: StaticImageData | string;
@@ -23,4 +24,6 @@ export interface ControlsProps {
   }[];
   albumIndex: number; // Asegúrate de que 'albumIndex' esté definido correctamente
   setAlbumIndex: React.Dispatch<React.SetStateAction<number>>;
+  isPlaying?: boolean;
+  setIsPlaying?: React.Dispatch<React.SetStateAction<boolean>>;
 }
