@@ -2,7 +2,6 @@ import React from 'react';
 import { DisplayTrackProps } from '@/utils/interfaceDisplay';
 import { AlbumListProps } from '@/utils/interfaceAlbumList';
 import Image from 'next/image';
-import  styles  from '../styles/AudioPlayer.module.scss'
 
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
 
@@ -36,29 +35,37 @@ export const DisplayTrack: React.FC<DisplayTrackProps> = ({
   return (
     <div>
       <audio 
-      src={currentTrack.src} 
-      ref={(element) => {
-        if (element) {
-          audioRef.current = element;
-        }
-      }}
-      onLoadedMetadata={onLoadedMetadata}
-      onEnded={handleNext}/>
-      <div className={styles.audioInfo}>
-        <div className={styles.audioImage}>
-          {currentAlbum && currentAlbum.thumbnail ? (
-            <Image src={currentAlbum.thumbnail} alt="audio avatar" />
-          ) : (
-            <div className={styles.iconWrapper}>
-              <span className={styles.audioIcon}>
-                <MusicNoteIcon />
-              </span>
-            </div>
-          )}
+        src={currentTrack.src} 
+        ref={(element) => {
+          if (element) {
+            audioRef.current = element;
+          }
+        }}
+        onLoadedMetadata={onLoadedMetadata}
+        onEnded={handleNext}
+      />
+      <div className="audioInfo">
+        <div className="audioImageContainer">
+          <div className="audioImage">
+            {currentAlbum && currentAlbum.thumbnail ? (
+              <Image 
+                src={currentAlbum.thumbnail} 
+                alt="audio avatar" 
+                width={300}
+                height={300}
+              />
+            ) : (
+              <div className="iconWrapper">
+                <span className="audioIcon">
+                  <MusicNoteIcon />
+                </span>
+              </div>
+            )}
+          </div>
         </div>
-        <div className={styles.text}>
-          <p className={styles.title}>{currentTrack.title}</p>
-          <p>{currentTrack.album}</p>
+        <div className="textInfo">
+          <p className="title">{currentTrack.title}</p>
+          <p className="artist">{currentTrack.album}</p>
         </div>
       </div>
     </div>
