@@ -1,8 +1,8 @@
 import { AlbumListProps } from '@/utils/interfaceAlbumList';
+import { Track } from '@/utils/interfaceDisplay';
 import Image from 'next/image';
 import React from 'react';
 import defaultThumbnail from '../data/default-music-image.png';
-import { albums } from '@/data/tracks';
 import { Search } from './Search';
 
 
@@ -11,9 +11,10 @@ import { Search } from './Search';
 interface AlbumsListProps {
   albums: AlbumListProps[];
   onAlbumSelect?: (album: AlbumListProps) => void;
+  onTrackSelect?: (track: Track) => void;
 }
 
-export const AlbumsList: React.FC<AlbumsListProps> = ({ albums, onAlbumSelect }) => {
+export const AlbumsList: React.FC<AlbumsListProps> = ({ albums, onAlbumSelect, onTrackSelect }) => {
   const [albumList, setAlbumList] = React.useState<AlbumListProps[]>([]);
   const [currentAlbumIndex, setCurrentAlbumIndex] = React.useState<number | null>(null);
   const [searchTerm, setSearchTerm] = React.useState<string>('');

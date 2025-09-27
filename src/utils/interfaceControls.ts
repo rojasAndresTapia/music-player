@@ -12,6 +12,7 @@ export interface ControlsProps {
   trackIndex: number;
   setTrackIndex: React.Dispatch<React.SetStateAction<number>>;
   setCurrentTrack: (track: Track) => void;
+  playTrack?: (track: Track) => Promise<void>;
   handleNext: () => void;
   handlePrevious?: () => void;
   albums: {

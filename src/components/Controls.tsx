@@ -21,6 +21,7 @@ export const Controls: React.FC<ControlsProps> = ({
   trackIndex,
   setTrackIndex,
   setCurrentTrack,
+  playTrack,
   handleNext,
   handlePrevious,
   isPlaying: isPlayingProp,
@@ -35,27 +36,74 @@ export const Controls: React.FC<ControlsProps> = ({
   const [volume, setVolume] = React.useState(60)
   const [muteVolume, setMuteVolume] = React.useState(false);
 
-  const togglePlayPause = () => {
+  const togglePlayPause = async () => {
     if (audioRef.current) {
-      console.log('togglePlayPause - isPlaying:', isPlaying);
-      console.log('togglePlayPause - audioRef.current.src:', audioRef.current.src);
-      console.log('togglePlayPause - tracks.length:', tracks.length);
+      console.log('🎮 togglePlayPause called');
+      console.log('Current state:', {
+        isPlaying,
+        hasSource: !!audioRef.current.src,
+        audioSrc: audioRef.current.src,
+        tracksLength: tracks.length,
+        audioPaused: audioRef.current.paused,
+        audioEnded: audioRef.current.ended,
+        audioCurrentTime: audioRef.current.currentTime,
+        audioReadyState: audioRef.current.readyState
+      });
       
       if (isPlaying) {
-        console.log('Pausing audio');
+        console.log('🛑 Pausing audio');
         audioRef.current.pause();
+        
+        // Manually update state to ensure UI responds immediately
+        console.log('🔄 Manually setting isPlaying to false');
+        setIsPlaying(false);
       } else {
         // Check if audio has a source, if not, start with first track
         if (!audioRef.current.src || audioRef.current.src === '') {
-          console.log('No audio source, setting first track');
-          if (tracks.length > 0) {
-            // Start playing the first track
+          console.log('No audio source, loading first track');
+          if (tracks.length > 0 && playTrack) {
+            // Use the playTrack function to properly load and play the first track
             setCurrentTrack(tracks[0]);
             setTrackIndex(0);
+            await playTrack(tracks[0]);
+            
+            // Manually update isPlaying state since audio events might not fire properly
+            console.log('🔄 Manually setting isPlaying to true after playTrack');
+            setIsPlaying(true);
           }
         } else {
-          console.log('Playing audio with existing source');
-          audioRef.current.play();
+          console.log('▶️ Resuming or starting audio playback');
+          
+          // Check if audio is just paused (same track) or needs new track loading
+          if (audioRef.current.src && audioRef.current.currentTime > 0) {
+            console.log('🔄 Audio is paused, resuming directly');
+            try {
+              await audioRef.current.play();
+              console.log('✅ Audio resumed successfully');
+              setIsPlaying(true);
+            } catch (error) {
+              console.error('❌ Audio resume failed:', error);
+            }
+          } else {
+            console.log('🎯 No current playback, using playTrack function');
+            if (tracks.length > 0 && playTrack) {
+              const currentTrackIndex = trackIndex || 0;
+              const currentTrack = tracks[currentTrackIndex];
+              if (currentTrack) {
+                console.log('🎵 Using playTrack function for:', currentTrack.title);
+                await playTrack(currentTrack);
+              }
+            } else {
+              // Fallback if no playTrack function available
+              console.log('🔄 Fallback: direct audio play (no playTrack function)');
+              try {
+                await audioRef.current.play();
+                setIsPlaying(true);
+              } catch (error) {
+                console.error('❌ Direct audio play failed:', error);
+              }
+            }
+          }
         }
       }
       // The isPlaying state will be updated by the audio event listeners in AudioPlayer

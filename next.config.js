@@ -1,4 +1,26 @@
 module.exports = {
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'http',
+          hostname: 'localhost',
+          port: '4000',
+          pathname: '/**',
+        },
+        {
+          protocol: 'https',
+          hostname: 'andres-music.s3.eu-north-1.amazonaws.com',
+          port: '',
+          pathname: '/**',
+        },
+        {
+          protocol: 'https',
+          hostname: '*.s3.*.amazonaws.com',
+          port: '',
+          pathname: '/**',
+        },
+      ],
+    },
     webpack(config, options) {
       const { isServer } = options;
       config.module.rules.push({

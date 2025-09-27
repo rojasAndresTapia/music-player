@@ -3,7 +3,10 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export interface BackendAlbum {
   [artist: string]: {
-    [album: string]: string[];
+    [album: string]: {
+      tracks: string[];
+      images: string[];
+    };
   };
 }
 
@@ -33,17 +36,13 @@ class ApiService {
   }
 
   async getSongUrl(key: string): Promise<string> {
-    try {
-      const response = await fetch(`${this.baseUrl}/song?key=${encodeURIComponent(key)}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data: SongUrlResponse = await response.json();
-      return data.url;
-    } catch (error) {
-      console.error('Error getting song URL:', error);
-      throw error;
-    }
+    // Use the audio proxy endpoint directly instead of signed URLs
+    return `${this.baseUrl}/audio-proxy?key=${encodeURIComponent(key)}`;
+  }
+
+  async getImageUrl(key: string): Promise<string> {
+    // Use the image proxy endpoint directly instead of signed URLs
+    return `${this.baseUrl}/image-proxy?key=${encodeURIComponent(key)}`;
   }
 }
 

@@ -11,19 +11,25 @@ export const AudioPlayer: React.FC<DisplayTrackProps> = ({
   setDuration: setDurationProp,
   progressBarRef,
   currentAlbum,
-  onTrackSelect
+  onTrackSelect,
+  playTrack,
+  isPlaying: isPlayingProp,
+  setIsPlaying: setIsPlayingProp
 }) => {
   const [timeProgress, setTimeProgress] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  
+  // Use passed isPlaying state or fallback to local state
+  const isPlaying = isPlayingProp !== undefined ? isPlayingProp : false;
+  const setIsPlaying = setIsPlayingProp || (() => {});
   
 
 
   // Handle track selection from the track list
   const handleTrackClick = (track: Track, trackIndex: number) => {
     if (onTrackSelect) {
-      onTrackSelect(track, trackIndex);
+      onTrackSelect(track, trackIndex, 'tracklist');
       // Update current track index and set playing state to true
       setCurrentTrackIndex(trackIndex);
       setIsPlaying(true);
@@ -37,11 +43,10 @@ export const AudioPlayer: React.FC<DisplayTrackProps> = ({
     const nextIndex = currentTrackIndex >= currentAlbum.tracks.length - 1 ? 0 : currentTrackIndex + 1;
     const nextTrack = currentAlbum.tracks[nextIndex];
     
-    
+    console.log('Skip Next - moving to track:', nextTrack.title);
     setCurrentTrackIndex(nextIndex);
-    onTrackSelect(nextTrack, nextIndex);
-    // Ensure playing state is set to true for skip navigation
-    setIsPlaying(true);
+    onTrackSelect(nextTrack, nextIndex, 'skip-next');
+    // Note: Don't set isPlaying here - let the track loading handle it
   };
 
   // Handle previous track
@@ -51,10 +56,10 @@ export const AudioPlayer: React.FC<DisplayTrackProps> = ({
     const prevIndex = currentTrackIndex <= 0 ? currentAlbum.tracks.length - 1 : currentTrackIndex - 1;
     const prevTrack = currentAlbum.tracks[prevIndex];
     
+    console.log('Skip Previous - moving to track:', prevTrack.title);
     setCurrentTrackIndex(prevIndex);
-    onTrackSelect(prevTrack, prevIndex);
-    // Ensure playing state is set to true for skip navigation
-    setIsPlaying(true);
+    onTrackSelect(prevTrack, prevIndex, 'skip-previous');
+    // Note: Don't set isPlaying here - let the track loading handle it
   };
 
   // Handle setting current track (for Controls component)
@@ -64,7 +69,7 @@ export const AudioPlayer: React.FC<DisplayTrackProps> = ({
     const trackIndex = currentAlbum.tracks.findIndex(t => t.title === track.title);
     if (trackIndex !== -1) {
       setCurrentTrackIndex(trackIndex);
-      onTrackSelect(track, trackIndex);
+      onTrackSelect(track, trackIndex, 'controls');
     }
   };
 
@@ -91,29 +96,81 @@ export const AudioPlayer: React.FC<DisplayTrackProps> = ({
     }
   };
 
-  // Set up audio event listeners
+  // Single, clean event listener setup
   useEffect(() => {
     const audio = audioRef.current;
     if (audio) {
-      const handlePlay = () => setIsPlaying(true);
-      const handlePause = () => setIsPlaying(false);
-      const handleEnded = () => setIsPlaying(false);
+      console.log('🎯 Setting up CLEAN audio event listeners');
       
-      audio.addEventListener('loadedmetadata', onLoadedMetadata);
-      audio.addEventListener('timeupdate', updateProgress);
+      const handlePlay = () => {
+        console.log('🎵 CLEAN - Audio play event triggered');
+        setIsPlaying(true);
+      };
+      
+      const handlePause = () => {
+        console.log('⏸️ CLEAN - Audio pause event triggered');
+        setIsPlaying(false);
+      };
+      
+      const handleTimeUpdate = () => {
+        if (progressBarRef.current && audio) {
+          const currentTime = audio.currentTime;
+          const duration = audio.duration;
+          setTimeProgress(currentTime);
+          
+          if (progressBarRef.current) {
+            const progress = (currentTime / duration) * 100;
+            progressBarRef.current.style.setProperty('--range-progress', `${progress}%`);
+          }
+        }
+      };
+      
+      const handleLoadedMetadata = () => {
+        if (audio) {
+          const seconds = audio.duration;
+          setDuration(seconds);
+          if (setDurationProp) setDurationProp(seconds);
+        }
+      };
+      
+      // Add all event listeners
       audio.addEventListener('play', handlePlay);
       audio.addEventListener('pause', handlePause);
-      audio.addEventListener('ended', handleEnded);
+      audio.addEventListener('timeupdate', handleTimeUpdate);
+      audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+      
+      console.log('✅ Clean event listeners attached');
       
       return () => {
-        audio.removeEventListener('loadedmetadata', onLoadedMetadata);
-        audio.removeEventListener('timeupdate', updateProgress);
+        console.log('🧹 Removing clean event listeners');
         audio.removeEventListener('play', handlePlay);
         audio.removeEventListener('pause', handlePause);
-        audio.removeEventListener('ended', handleEnded);
+        audio.removeEventListener('timeupdate', handleTimeUpdate);
+        audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       };
     }
-  }, [audioRef.current]); // Watch for changes to audioRef.current instead of audioRef
+  }, []); // Run once on mount
+  
+  // Simplified state check - only log, don't auto-correct
+  useEffect(() => {
+    const checkPlayingState = () => {
+      if (audioRef.current && !audioRef.current.paused && !audioRef.current.ended) {
+        if (!isPlaying) {
+          console.log('🔍 Detected: Audio is playing but UI state is false');
+          console.log('Audio details:', {
+            paused: audioRef.current.paused,
+            ended: audioRef.current.ended,
+            currentTime: audioRef.current.currentTime,
+            duration: audioRef.current.duration
+          });
+          // Don't auto-correct - let's see what's happening first
+        }
+      }
+    };
+    
+    const interval = setInterval(checkPlayingState, 1000); // Check every 1 second
+    return () => clearInterval(interval);
+  }, [isPlaying]);
 
   // Reset track index when album changes
   useEffect(() => {
@@ -202,6 +259,7 @@ export const AudioPlayer: React.FC<DisplayTrackProps> = ({
             tracks={currentAlbum.tracks}
             setAlbumIndex={() => {}}
             setCurrentTrack={handleSetCurrentTrack}
+            playTrack={playTrack}
             trackIndex={currentTrackIndex}
             setTrackIndex={setCurrentTrackIndex}
             handleNext={handleNext}
